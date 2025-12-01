@@ -88,8 +88,9 @@ export function useVoiceRecorder({
     } catch (err) {
       console.error('Transcription error:', err);
       // Only set error for non-format errors to avoid spam
-      if (!err.message?.includes('Invalid file format')) {
-        setError(err instanceof Error ? err.message : 'Failed to transcribe audio');
+      const errorMessage = err instanceof Error ? err.message : 'Failed to transcribe audio';
+      if (!errorMessage.includes('Invalid file format')) {
+        setError(errorMessage);
       }
     } finally {
       setIsProcessing(false);
