@@ -1,27 +1,20 @@
 /**
  * Get the correct URL for the current environment
- * Uses NEXT_PUBLIC_SITE_URL if set, otherwise falls back to window.location.origin
- * This ensures correct redirects in both local and production environments
+ * Follows Supabase's recommended pattern for Vercel deployments
+ * See: https://supabase.com/docs/guides/auth/redirect-urls#vercel-preview-urls
  */
 export function getSiteURL(): string {
-  // In server-side contexts, use environment variable
-  if (typeof window === 'undefined') {
-    if (process.env.NEXT_PUBLIC_SITE_URL) {
-      return process.env.NEXT_PUBLIC_SITE_URL
-    }
-    if (process.env.NEXT_PUBLIC_VERCEL_URL) {
-      return `https://${process.env.NEXT_PUBLIC_VERCEL_URL}`
-    }
-    return 'http://localhost:3000'
-  }
-
-  // In client-side contexts, prefer environment variable but fall back to window.location
-  const envUrl = process.env.NEXT_PUBLIC_SITE_URL
-  if (envUrl) {
-    return envUrl
-  }
-
-  // Fall back to window.location.origin
-  return window.location.origin
+  let url =
+    process?.env?.NEXT_PUBLIC_SITE_URL ?? // Set this to your site URL in production env.
+    process?.env?.NEXT_PUBLIC_VERCEL_URL ?? // Automatically set by Vercel.
+    'http://localhost:3000'
+  
+  // Make sure to include `https://` when not localhost.
+  url = url.startsWith('http') ? url : `https://${url}`
+  
+  // Remove trailing slash for consistency
+  url = url.endsWith('/') ? url.slice(0, -1) : url
+  
+  return url
 }
 
